@@ -1,30 +1,30 @@
 import { appRouters, otherRouters } from '../../router/router'
 import Util from '../../lib/util'
 import Vue from 'vue'
-import Vuex, { Store, Module, ActionContext } from 'vuex'
+import { Store, Module, ActionContext } from 'vuex'
 
 import ajax from '../../lib/ajax'
 import appconst from '../../lib/appconst'
-Vue.use(Vuex)
+
 interface AppState {
-    cachePage: Array<any>;
-    lang: string;
-    isFullScreen: boolean;
-    openedSubmenuArr: Array<any>;
-    menuTheme: string;
-    themeColor: string,
-    pageOpenedList: Array<any>;
-    currentPageName: string;
-    currentPath: Array<any>;
-    menuList: Array<any>;
-    routers: Array<any>;
-    tagsList: Array<any>;
-    messageCount: number;
-    dontCache: Array<any>;
-    noticeList: Array<any>;
+    cachePage: Array<any>
+    lang: string
+    isFullScreen: boolean
+    openedSubmenuArr: Array<any>
+    menuTheme: string
+    themeColor: string
+    pageOpenedList: Array<any>
+    currentPageName: string
+    currentPath: Array<any>
+    menuList: Array<any>
+    routers: Array<any>
+    tagsList: Array<any>
+    messageCount: number
+    dontCache: Array<any>
+    noticeList: Array<any>
 }
 class AppModule implements Module<AppState, any> {
-    namespaced = true;
+    namespaced = true
     state = {
         cachePage: [],
         lang: '',
@@ -32,11 +32,13 @@ class AppModule implements Module<AppState, any> {
         openedSubmenuArr: [],
         menuTheme: 'dark',
         themeColor: '',
-        pageOpenedList: [{
-            meta: { title: 'HomePage' },
-            path: '',
-            name: 'home'
-        }],
+        pageOpenedList: [
+            {
+                meta: { title: 'HomePage' },
+                path: '',
+                name: 'home'
+            }
+        ],
         currentPageName: '',
         currentPath: [
             {
@@ -46,15 +48,16 @@ class AppModule implements Module<AppState, any> {
             }
         ],
         menuList: [],
-        routers: [
-            otherRouters,
-            ...appRouters
-        ],
+        routers: [otherRouters, ...appRouters],
         tagsList: [...otherRouters.children],
         messageCount: 0,
         dontCache: [],
-        noticeList: [{ read: false, type: 0, title: 'First notice', description: 'One day ago' }, { read: false, type: 1 }, { read: false, type: 0, title: 'Second notice', description: 'One month ago' }]
-    };
+        noticeList: [
+            { read: false, type: 0, title: 'First notice', description: 'One day ago' },
+            { read: false, type: 1 },
+            { read: false, type: 0, title: 'Second notice', description: 'One month ago' }
+        ]
+    }
     mutations = {
         logout(state: AppState) {
             localStorage.clear()
@@ -173,7 +176,9 @@ class AppModule implements Module<AppState, any> {
             localStorage.pageOpenedList = JSON.stringify(state.pageOpenedList)
         },
         setOpenedList(state: AppState) {
-            state.pageOpenedList = localStorage.pageOpenedList ? JSON.parse(localStorage.pageOpenedList) : [otherRouters.children[0]]
+            state.pageOpenedList = localStorage.pageOpenedList
+                ? JSON.parse(localStorage.pageOpenedList)
+                : [otherRouters.children[0]]
         },
         setCurrentPath(state: AppState, pathArr: Array<any>) {
             state.currentPath = pathArr
@@ -195,9 +200,16 @@ class AppModule implements Module<AppState, any> {
     actions = {
         async login(content: ActionContext<AppState, any>, payload: any) {
             let rep = await ajax.post('/api/TokenAuth/Authenticate', payload.data)
-            var tokenExpireDate = payload.data.rememberMe ? (new Date(new Date().getTime() + 1000 * rep.data.result.expireInSeconds)) : undefined
+            var tokenExpireDate = payload.data.rememberMe
+                ? new Date(new Date().getTime() + 1000 * rep.data.result.expireInSeconds)
+                : undefined
             Util.abp.auth.setToken(rep.data.result.accessToken, tokenExpireDate)
-            Util.abp.utils.setCookieValue(appconst.authorization.encrptedAuthTokenName, rep.data.result.encryptedAccessToken, tokenExpireDate, Util.abp.appPath)
+            Util.abp.utils.setCookieValue(
+                appconst.authorization.encrptedAuthTokenName,
+                rep.data.result.encryptedAccessToken,
+                tokenExpireDate,
+                Util.abp.appPath
+            )
         }
     }
 }
